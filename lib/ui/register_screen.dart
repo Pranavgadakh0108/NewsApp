@@ -1,6 +1,7 @@
-// ignore_for_file: deprecated_member_use
+// ignore_for_file: deprecated_member_use, use_build_context_synchronously
 
 import 'package:flutter/material.dart';
+import 'package:news_app/database/database_helper.dart';
 import 'package:news_app/ui/login_screen.dart';
 import 'package:sliding_action_button/sliding_action_button.dart';
 
@@ -22,6 +23,65 @@ class _RegisterScreenState extends State<RegisterScreen> {
   var confirmPasswordController = TextEditingController();
 
   final GlobalKey<FormState> _globalKey = GlobalKey();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+
+  void registerUser() async {
+    final username = usernameController.text.trim();
+    final email = emailController.text.trim();
+    final password = passwordController.text.trim();
+
+    if (username.isEmpty || email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Enter username/email/password First',
+            style: TextStyle(
+              color: Colors.orangeAccent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      );
+    }
+
+    try {
+      bool exist = await _dbHelper.checkUserExist(email);
+
+      if (exist) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Email Already Exist',
+              style: TextStyle(
+                color: Colors.orangeAccent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        );
+      } else {
+        await _dbHelper.signup(username, email, password);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Account Created Successfully',
+              style: TextStyle(
+                color: Colors.orangeAccent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LoginScreen()),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('$e')));
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -203,12 +263,13 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           rightEdgeSpacing: 4,
                           onSlideActionCompleted: () {
                             if (_globalKey.currentState!.validate()) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => LoginScreen(),
-                                ),
-                              );
+                              // Navigator.pushReplacement(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: (context) => LoginScreen(),
+                              //   ),
+                              // );
+                              registerUser();
                             }
                           },
                           onSlideActionCanceled: () {},

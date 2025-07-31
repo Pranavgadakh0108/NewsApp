@@ -1,9 +1,13 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:news_app/data/appdata.dart';
+import 'package:news_app/database/database_helper.dart';
 import 'package:news_app/ui/bottom_nav.dart';
 import 'package:news_app/ui/register_screen.dart';
 import 'package:news_app/widgets/custom_form_field.dart';
 import 'package:news_app/widgets/custom_password.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sliding_action_button/sliding_action_button.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -17,6 +21,77 @@ class _LoginScreenState extends State<LoginScreen> {
   final GlobalKey<FormState> _globalKey = GlobalKey();
   var emailController = TextEditingController();
   var passwordController = TextEditingController();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+
+  void loginUser() async {
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Enter Email and Password First',
+            style: TextStyle(
+              color: Colors.orangeAccent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      );
+    }
+
+    try {
+      final user = await _dbHelper.signIn(email, password);
+      if (user != null) {
+        SharedPreferences sharedPreferences =
+            await SharedPreferences.getInstance();
+
+        sharedPreferences.setString('email', email);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'You are Logged In..!!',
+              style: TextStyle(
+                color: Colors.orangeAccent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => BottomNav()),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              'Invalid Email or Password',
+              style: TextStyle(
+                color: Colors.orangeAccent,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '$e',
+            style: TextStyle(
+              color: Colors.orangeAccent,
+              fontWeight: FontWeight.w700,
+            ),
+          ),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -158,12 +233,13 @@ class _LoginScreenState extends State<LoginScreen> {
                           rightEdgeSpacing: 4,
                           onSlideActionCompleted: () {
                             if (_globalKey.currentState!.validate()) {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => BottomNav(),
-                                ),
-                              );
+                              // Navigator.pushReplacement(
+                              //   context,
+                              //   MaterialPageRoute(
+                              //     builder: (context) => BottomNav(),
+                              //   ),
+                              // );
+                              loginUser();
                             }
                           },
                           onSlideActionCanceled: () {},

@@ -7,6 +7,7 @@ import 'package:news_app/data/appdata.dart';
 import 'package:news_app/ui/breaking_news.dart';
 import 'package:news_app/ui/latest_news.dart';
 import 'package:news_app/ui/news_detail_screen.dart';
+import 'package:news_app/utils/logout.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});
@@ -17,10 +18,9 @@ class Dashboard extends StatefulWidget {
 
 class _DashboardState extends State<Dashboard> {
   late List<bool> isBookmarked;
-
-  //auto scrolling
   final ScrollController _scrollController = ScrollController();
   late Timer _autoScrollTimer;
+  
 
   @override
   void initState() {
@@ -37,9 +37,6 @@ class _DashboardState extends State<Dashboard> {
         double next = current + 300;
 
         if (next >= maxScroll) {
-          // _scrollController.animateTo(0,
-          //     duration: const Duration(milliseconds: 600),
-          //     curve: Curves.easeInOut);
           _scrollController.jumpTo(0);
         } else {
           _scrollController.animateTo(
@@ -64,272 +61,286 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Hello Aditya",
-                        style: TextStyle(fontWeight: FontWeight.w800),
-                      ),
-                      Text('Your Daily Dose of News'),
-                    ],
-                  ),
-                  CircleAvatar(
-                    radius: 30,
-                    child: Image.network(
-                      'https://img.freepik.com/free-vector/blue-circle-with-white-user_78370-4707.jpg?semt=ais_hybrid&w=740&q=80',
-                    ),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                height: 70,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: categories.length,
-                  separatorBuilder: (context, index) =>
-                      const SizedBox(width: 16),
-                  itemBuilder: (context, index) {
-                    return Column(
+        child: SingleChildScrollView(
+          // Main scroll for the entire page
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 14),
+            child: Column(
+              children: [
+                // Header Row
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        CircleAvatar(
-                          backgroundImage: NetworkImage(
-                            categories[index]['image']!,
-                          ),
-                          backgroundColor: Colors.orange.shade100,
-                          radius: 22,
-                        ),
-                        const SizedBox(height: 6),
                         Text(
-                          categories[index]['name']!,
-                          style: const TextStyle(fontSize: 12),
+                          "Hello Aditya",
+                          style: TextStyle(fontWeight: FontWeight.w800),
                         ),
+                        Text('Your Daily Dose of News'),
                       ],
-                    );
-                  },
+                    ),
+                    IconButton(
+                      onPressed: () {
+                        logout(context);
+                      },
+                      icon: Icon(
+                        Icons.power_settings_new,
+                        color: Colors.red,
+                        size: 27,
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-              SizedBox(height: 20),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Breaking News',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (context) => BreakingNews()),
+                const SizedBox(height: 20),
+
+                // Categories List
+                SizedBox(
+                  height: 70,
+                  child: ListView.separated(
+                    scrollDirection: Axis.horizontal,
+                    itemCount: categories.length,
+                    separatorBuilder: (context, index) =>
+                        const SizedBox(width: 16),
+                    itemBuilder: (context, index) {
+                      return Column(
+                        children: [
+                          CircleAvatar(
+                            backgroundImage: NetworkImage(
+                              categories[index]['image']!,
+                            ),
+                            backgroundColor: Colors.orange.shade100,
+                            radius: 22,
+                          ),
+                          const SizedBox(height: 6),
+                          Text(
+                            categories[index]['name']!,
+                            style: const TextStyle(fontSize: 12),
+                          ),
+                        ],
                       );
                     },
-                    child: Text(
-                      'View all',
-                      style: TextStyle(color: Colors.red, fontSize: 14),
-                    ),
                   ),
-                ],
-              ),
-              SizedBox(height: 20),
-              SizedBox(
-                height: 250,
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NewsDetailScreen(),
+                ),
+                const SizedBox(height: 20),
+
+                // Breaking News Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Breaking News',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
                       ),
-                    );
-                  },
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => BreakingNews()),
+                      ),
+                      child: Text(
+                        'View all',
+                        style: TextStyle(color: Colors.red, fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Breaking News List
+                SizedBox(
+                  height: 250,
                   child: ListView.builder(
                     controller: _scrollController,
                     scrollDirection: Axis.horizontal,
                     itemCount: breakingNews.length,
                     itemBuilder: (context, index) {
                       var item = breakingNews[index];
-                      return Container(
-                        width: 280,
-                        margin: const EdgeInsets.only(right: 16),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(12),
-                          color: Colors.grey.shade100,
+                      return GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NewsDetailScreen(),
+                          ),
                         ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            ClipRRect(
-                              borderRadius: const BorderRadius.vertical(
-                                top: Radius.circular(12),
-                              ),
-                              child: Image.network(
-                                item["image"]!,
-                                height: 150,
-                                width: double.infinity,
-                                fit: BoxFit.cover,
-                              ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: Text(
-                                item["title"]!,
-                                maxLines: 2,
-                                overflow: TextOverflow.ellipsis,
-                                style: const TextStyle(
-                                  fontSize: 14,
-                                  fontWeight: FontWeight.w600,
+                        child: Container(
+                          width: 280,
+                          margin: const EdgeInsets.only(right: 16),
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(12),
+                            color: Colors.grey.shade100,
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ClipRRect(
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(12),
+                                ),
+                                child: Image.network(
+                                  item["image"]!,
+                                  height: 150,
+                                  width: double.infinity,
+                                  fit: BoxFit.cover,
                                 ),
                               ),
-                            ),
-                            Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 10.0,
-                              ),
-                              child: Row(
-                                children: [
-                                  // CircleAvatar(
-                                  //   backgroundImage: NetworkImage(item["logo"]!),
-                                  //   radius: 10,
-                                  // ),
-                                  Icon(
-                                    Icons.circle_rounded,
-                                    color: Colors.orange,
+                              Padding(
+                                padding: const EdgeInsets.all(10.0),
+                                child: Text(
+                                  item["title"]!,
+                                  maxLines: 2,
+                                  overflow: TextOverflow.ellipsis,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w600,
                                   ),
-                                  const SizedBox(width: 6),
-                                  Text(
-                                    item["source"]!,
-                                    style: const TextStyle(
-                                      fontSize: 12,
-                                      color: Colors.black,
+                                ),
+                              ),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10.0,
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.circle_rounded,
+                                      color: Colors.orange,
                                     ),
-                                  ),
-                                ],
+                                    const SizedBox(width: 6),
+                                    Text(
+                                      item["source"]!,
+                                      style: const TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.black,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       );
                     },
                   ),
                 ),
-              ),
-              SizedBox(height: 30),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Latest News',
-                    style: TextStyle(fontWeight: FontWeight.w800, fontSize: 18),
-                  ),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.push(
+                const SizedBox(height: 30),
+
+                // Latest News Header
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      'Latest News',
+                      style: TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 18,
+                      ),
+                    ),
+                    GestureDetector(
+                      onTap: () => Navigator.push(
                         context,
                         MaterialPageRoute(builder: (context) => LatestNews()),
-                      );
-                    },
-                    child: Text(
-                      'View all',
-                      style: TextStyle(color: Colors.red, fontSize: 14),
-                    ),
-                  ),
-                ],
-              ),
-              SizedBox(height: 20),
-              Expanded(
-                child: GestureDetector(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => NewsDetailScreen(),
                       ),
-                    );
-                  },
+                      child: Text(
+                        'View all',
+                        style: TextStyle(color: Colors.red, fontSize: 14),
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+
+                // Latest News List (Nested Scrollable)
+                SizedBox(
+                  // Constrain height to prevent infinite expansion
+                  height: 300, // Adjust this height as needed
                   child: ListView.builder(
+                    physics:
+                        const ClampingScrollPhysics(), // Smooth nested scrolling
                     itemCount: latestNews.length,
                     itemBuilder: (context, index) {
                       final item = latestNews[index];
-                      return ListTile(
-                        contentPadding: EdgeInsets.zero,
-                        leading: ClipRRect(
-                          borderRadius: BorderRadius.circular(8),
-                          child: Image.network(
-                            item["image"]!,
-                            width: 70,
-                            height: 70,
-                            fit: BoxFit.cover,
+                      return GestureDetector(
+                        onTap: () => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => NewsDetailScreen(),
                           ),
                         ),
-                        title: Text(
-                          item["title"]!,
-                          style: const TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 14,
-                            color: Colors.black,
-                          ),
-                        ),
-                        subtitle: Row(
-                          children: [
-                            const Icon(
-                              Icons.circle,
-                              color: Colors.blue,
-                              size: 13,
+                        child: ListTile(
+                          contentPadding: EdgeInsets.zero,
+                          leading: ClipRRect(
+                            borderRadius: BorderRadius.circular(8),
+                            child: Image.network(
+                              item["image"]!,
+                              width: 70,
+                              height: 70,
+                              fit: BoxFit.cover,
                             ),
-                            const SizedBox(width: 6),
-                            Text(
-                              "${item["source"]} • ${item["time"]}",
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.black,
+                          ),
+                          title: Text(
+                            item["title"]!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                              color: Colors.black,
+                            ),
+                          ),
+                          subtitle: Row(
+                            children: [
+                              const Icon(
+                                Icons.circle,
+                                color: Colors.blue,
+                                size: 13,
                               ),
-                            ),
-                          ],
-                        ),
-
-                        trailing: IconButton(
-                          onPressed: () {
-                            setState(() {
-                              isBookmarked[index] = !isBookmarked[index];
-                            });
-
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  isBookmarked[index]
-                                      ? 'News Bookmarked Successfully'
-                                      : 'Bookmark Removed',
-                                  style: const TextStyle(
-                                    color: Colors.orangeAccent,
-                                    fontWeight: FontWeight.w700,
-                                  ),
+                              const SizedBox(width: 6),
+                              Text(
+                                "${item["source"]} • ${item["time"]}",
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  color: Colors.black,
                                 ),
                               ),
-                            );
-                          },
-                          icon: Icon(
-                            isBookmarked[index]
-                                ? Icons.bookmark
-                                : Icons.bookmark_border_outlined,
-                            color: Colors.orange,
-                            size: 30,
+                            ],
+                          ),
+                          trailing: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isBookmarked[index] = !isBookmarked[index];
+                              });
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    isBookmarked[index]
+                                        ? 'News Bookmarked Successfully'
+                                        : 'Bookmark Removed',
+                                    style: const TextStyle(
+                                      color: Colors.orangeAccent,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              isBookmarked[index]
+                                  ? Icons.bookmark
+                                  : Icons.bookmark_border_outlined,
+                              color: Colors.orange,
+                              size: 30,
+                            ),
                           ),
                         ),
                       );
                     },
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       ),
