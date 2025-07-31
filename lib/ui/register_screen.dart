@@ -109,10 +109,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                 ),
 
                 Padding(
-                  // padding: const EdgeInsets.symmetric(
-                  //   vertical: 10,
-                  //   horizontal: 30,
-                  // ),
                   padding: EdgeInsets.all(20),
                   child: Form(
                     key: _globalKey,
@@ -238,12 +234,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                           rightEdgeSpacing: 4,
                           onSlideActionCompleted: () {
                             if (_globalKey.currentState!.validate()) {
-                              // Navigator.pushReplacement(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => LoginScreen(),
-                              //   ),
-                              // );
                               registerUser();
                             }
                           },

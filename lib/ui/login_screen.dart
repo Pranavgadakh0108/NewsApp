@@ -23,36 +23,24 @@ class _LoginScreenState extends State<LoginScreen> {
   var passwordController = TextEditingController();
   final DatabaseHelper _dbHelper = DatabaseHelper();
 
-  void loginUser() async {
-    final email = emailController.text;
-    final password = passwordController.text;
+  bool _isProcessing = false; // Add this as a class variable
 
-    if (email.isEmpty || password.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            'Enter Email and Password First',
-            style: TextStyle(
-              color: Colors.orangeAccent,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      );
-    }
+  void loginUser() async {
+    if (_isProcessing) return;
+    _isProcessing = true;
 
     try {
-      final user = await _dbHelper.signIn(email, password);
-      if (user != null) {
-        SharedPreferences sharedPreferences =
-            await SharedPreferences.getInstance();
+      // Clear any existing snackbars first
+      ScaffoldMessenger.of(context).clearSnackBars();
 
-        sharedPreferences.setString('email', email);
+      final email = emailController.text.trim();
+      final password = passwordController.text.trim();
 
+      if (email.isEmpty || password.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'You are Logged In..!!',
+              'Enter Email and Password First',
               style: TextStyle(
                 color: Colors.orangeAccent,
                 fontWeight: FontWeight.w700,
@@ -60,15 +48,55 @@ class _LoginScreenState extends State<LoginScreen> {
             ),
           ),
         );
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => BottomNav()),
-        );
-      } else {
+        return; // Add this to exit early
+      }
+
+      try {
+        final user = await _dbHelper.signIn(email, password);
+        if (user != null) {
+          SharedPreferences sharedPreferences =
+              await SharedPreferences.getInstance();
+          await sharedPreferences.setString('email', email);
+
+          // Show success message only once
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'You are Logged In..!!',
+                style: TextStyle(
+                  color: Colors.orangeAccent,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+              duration: Duration(seconds: 2), // Optional: Set duration
+            ),
+          );
+
+          // Navigate after a small delay to let user see the message
+          Future.delayed(Duration(milliseconds: 800), () {
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => BottomNav()),
+            );
+          });
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(
+                'Invalid Email or Password',
+                style: TextStyle(
+                  color: Colors.orangeAccent,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          );
+        }
+      } catch (e) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              'Invalid Email or Password',
+              'Error: ${e.toString()}',
               style: TextStyle(
                 color: Colors.orangeAccent,
                 fontWeight: FontWeight.w700,
@@ -77,20 +105,79 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         );
       }
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text(
-            '$e',
-            style: TextStyle(
-              color: Colors.orangeAccent,
-              fontWeight: FontWeight.w700,
-            ),
-          ),
-        ),
-      );
+    } finally {
+      _isProcessing = false;
     }
   }
+
+  // void loginUser() async {
+  //   final email = emailController.text;
+  //   final password = passwordController.text;
+
+  //   if (email.isEmpty || password.isEmpty) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //           'Enter Email and Password First',
+  //           style: TextStyle(
+  //             color: Colors.orangeAccent,
+  //             fontWeight: FontWeight.w700,
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   }
+
+  //   try {
+  //     final user = await _dbHelper.signIn(email, password);
+  //     if (user != null) {
+  //       SharedPreferences sharedPreferences =
+  //           await SharedPreferences.getInstance();
+
+  //       sharedPreferences.setString('email', email);
+
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text(
+  //             'You are Logged In..!!',
+  //             style: TextStyle(
+  //               color: Colors.orangeAccent,
+  //               fontWeight: FontWeight.w700,
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //       Navigator.pushReplacement(
+  //         context,
+  //         MaterialPageRoute(builder: (context) => BottomNav()),
+  //       );
+  //     } else {
+  //       ScaffoldMessenger.of(context).showSnackBar(
+  //         SnackBar(
+  //           content: Text(
+  //             'Invalid Email or Password',
+  //             style: TextStyle(
+  //               color: Colors.orangeAccent,
+  //               fontWeight: FontWeight.w700,
+  //             ),
+  //           ),
+  //         ),
+  //       );
+  //     }
+  //   } catch (e) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text(
+  //           '$e',
+  //           style: TextStyle(
+  //             color: Colors.orangeAccent,
+  //             fontWeight: FontWeight.w700,
+  //           ),
+  //         ),
+  //       ),
+  //     );
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -169,7 +256,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
 
                         SizedBox(height: 20),
-                        
+
                         SquareSlideToActionButton(
                           width: 250,
                           parentBoxRadiusValue: 15,
@@ -201,13 +288,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           leftEdgeSpacing: 2,
                           rightEdgeSpacing: 4,
                           onSlideActionCompleted: () {
-                            if (_globalKey.currentState!.validate()) {
-                              // Navigator.pushReplacement(
-                              //   context,
-                              //   MaterialPageRoute(
-                              //     builder: (context) => BottomNav(),
-                              //   ),
-                              // );
+                            if (!_isProcessing && _globalKey.currentState!.validate()) {
                               loginUser();
                             }
                           },
