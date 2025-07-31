@@ -169,38 +169,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
 
                         SizedBox(height: 20),
-                        // ElevatedButton(
-                        //   onPressed: () {
-                        //     // if (_globalKey.currentState!.validate()) {
-                        //     //   loginUser();
-                        //     // }
-
-                        //     Navigator.push(
-                        //       context,
-                        //       MaterialPageRoute(
-                        //         builder: (context) => BottomNav(),
-                        //       ),
-                        //     );
-                        //   },
-                        //   style: ElevatedButton.styleFrom(
-                        //     elevation: 5,
-                        //     backgroundColor: Colors.orange.shade400,
-                        //     foregroundColor: Colors.white,
-                        //   ),
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.symmetric(
-                        //       vertical: 10,
-                        //       horizontal: 30,
-                        //     ),
-                        //     child: Text(
-                        //       'Log In',
-                        //       style: TextStyle(
-                        //         fontSize: 17,
-                        //         fontWeight: FontWeight.w500,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
+                        
                         SquareSlideToActionButton(
                           width: 250,
                           parentBoxRadiusValue: 15,

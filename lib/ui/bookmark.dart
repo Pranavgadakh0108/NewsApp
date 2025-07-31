@@ -107,22 +107,36 @@ class _BookmarkState extends State<Bookmark> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Expanded(
-                              child: ClipRRect(
-                                borderRadius: BorderRadius.circular(10),
-
-                                child: GestureDetector(
-                                  onTap: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => BookmarkNews(),
+                              child: Container(
+                              
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20),
+                                  gradient: LinearGradient(
+                                    colors: [Colors.orange.shade400, Colors.orange.shade50],
+                                    begin: Alignment.topCenter,
+                                    end: Alignment.bottomCenter,
+                                  ),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.all(8.0),
+                                  child: ClipRRect(
+                                    borderRadius: BorderRadius.circular(10),
+                                  
+                                    child: GestureDetector(
+                                      onTap: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => BookmarkNews(),
+                                          ),
+                                        );
+                                      },
+                                      child: Image.network(
+                                        item['image']!,
+                                        fit: BoxFit.contain,
+                                        width: double.infinity,
                                       ),
-                                    );
-                                  },
-                                  child: Image.network(
-                                    item['image']!,
-                                    fit: BoxFit.contain,
-                                    width: double.infinity,
+                                    ),
                                   ),
                                 ),
                               ),

@@ -20,7 +20,6 @@ class _DashboardState extends State<Dashboard> {
   late List<bool> isBookmarked;
   final ScrollController _scrollController = ScrollController();
   late Timer _autoScrollTimer;
-  
 
   @override
   void initState() {
@@ -97,7 +96,7 @@ class _DashboardState extends State<Dashboard> {
 
                 // Categories List
                 SizedBox(
-                  height: 70,
+                  height: 90, // slightly taller for padding
                   child: ListView.separated(
                     scrollDirection: Axis.horizontal,
                     itemCount: categories.length,
@@ -106,12 +105,24 @@ class _DashboardState extends State<Dashboard> {
                     itemBuilder: (context, index) {
                       return Column(
                         children: [
-                          CircleAvatar(
-                            backgroundImage: NetworkImage(
-                              categories[index]['image']!,
+                          Container(
+                            padding: const EdgeInsets.all(
+                              3,
+                            ), // space between border and image
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color: Colors.deepOrangeAccent, // border color
+                                width: 2,
+                              ),
                             ),
-                            backgroundColor: Colors.orange.shade100,
-                            radius: 22,
+                            child: CircleAvatar(
+                              backgroundImage: NetworkImage(
+                                categories[index]['image']!,
+                              ),
+                              backgroundColor: Colors.orange.shade100,
+                              radius: 22,
+                            ),
                           ),
                           const SizedBox(height: 6),
                           Text(

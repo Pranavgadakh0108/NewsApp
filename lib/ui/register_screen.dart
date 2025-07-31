@@ -206,31 +206,6 @@ class _RegisterScreenState extends State<RegisterScreen> {
                         ),
                         SizedBox(height: 10),
 
-                        // ElevatedButton(
-                        //   onPressed: () {
-                        //     // if (_globalKey.currentState!.validate()) {
-                        //     //   registerUser();
-                        //     // }
-                        //   },
-                        //   style: ElevatedButton.styleFrom(
-                        //     elevation: 5,
-                        //     backgroundColor: Colors.orange.shade400,
-                        //     foregroundColor: Colors.white,
-                        //   ),
-                        //   child: Padding(
-                        //     padding: const EdgeInsets.symmetric(
-                        //       vertical: 10,
-                        //       horizontal: 30,
-                        //     ),
-                        //     child: Text(
-                        //       'Sign Up',
-                        //       style: TextStyle(
-                        //         fontSize: 17,
-                        //         fontWeight: FontWeight.w500,
-                        //       ),
-                        //     ),
-                        //   ),
-                        // ),
                         SquareSlideToActionButton(
                           width: 250,
                           parentBoxRadiusValue: 15,
